@@ -1,0 +1,18 @@
+#!/bin/bash
+mkdir /home/steam/bin && cd /home/steam/bin && wget http://media.steampowered.com/installer/steamcmd_linux.tar.gz -O /home/steam/bin/steam.tar.gz && tar -xvf /home/steam/bin/steam.tar.gz
+/home/steam/bin/steamcmd.sh +login anonymous +force_install_dir /home/steam/csgo +app_update 740 validate +quit
+
+cp /deploy/steam_appid.txt /home/steam/csgo/steam_appid.txt
+cp /deploy/*.cfg /home/steam/csgo/csgo/cfg/
+
+sed -i 's/SERVER_NAME/'"$SERVER_NAME"'/g' /home/steam/csgo/csgo/cfg/server.cfg
+sed -i 's/RCON_PASSWORD/'"$RCON_PASSWORD"'/g' /home/steam/csgo/csgo/cfg/server.cfg
+sed -i 's/SV_PASSWORD/'"$SV_PASSWORD"'/g' /home/steam/csgo/csgo/cfg/server.cfg
+
+mkdir -p /home/steam/.steam/sdk32/
+cp /home/steam/bin/linux32/steamclient.so /home/steam/.steam/sdk32/steamclient.so
+
+chown -R steam:steam /home/steam
+
+cd /home/steam/csgo/
+sudo -u steam ./srcds_run -game csgo -usercon -port 27015 +clientport 27005 +tv_port 27020 -tickrate ${TICK_RATE} +map ${MAP} +servercfgfile ${SERVERCFGFILE} -maxplayers_override ${MAXPLAYERS_OVERRIDE}  +mapgroup random_classic +game_mode ${GAME_MODE} +game_type ${GAME_TYPE}
